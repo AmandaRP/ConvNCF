@@ -12,3 +12,9 @@ the following paper and implemented by its authors using Tensorflow (see
 > Convolutional Neural Collaborative
 > Filtering.](https://dl.acm.org/doi/abs/10.1145/3357154) ACM
 > Transactions on Information Systems (TOIS) 37, no. 4 (2019): 1-22.
+
+## Code
+
+The model implementation is in `ConvNCF.R`. This implementation
+currently assumes binary feedback (1 = user liked movie, 0 otherwise).
+An example using Yelp ratings is provided in `yelp.R`.
