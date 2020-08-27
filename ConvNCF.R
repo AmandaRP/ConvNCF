@@ -78,8 +78,7 @@ convNCF <- function(K){
                     # Paper did not mention regularization, but it is included in authors' code. Note sure what value they used, but their default is 0.
                     #embeddings_regularizer = regularizer_l2(lambda), 
                     input_length = 1,  # the length of the sequence that is being fed in (one integer)
-                    name = "user_embedding") #%>%
-  #layer_flatten(name = "user_flat_embedding") #TODO: Do I want to flatten? I don't think I need to b/c dim is batchsize x 1 x k
+                    name = "user_embedding") 
   
   item_embedding <- item_input %>%  
     layer_embedding(input_dim = num_items, # "dictionary" size
@@ -88,11 +87,16 @@ convNCF <- function(K){
                     # Paper did not mention regularization, but it is included in authors' code. Note sure what value they used, but their default is 0.
                     #embeddings_regularizer = regularizer_l2(lambda), 
                     input_length = 1,  # the length of the sequence that is being fed in (one integer)
-                    name = "item_embedding") #%>%
-  #layer_flatten(name = "item_flat_embedding") #TODO: Do I want to flatten?
+                    name = "item_embedding") 
   
   #Compute outer product transpose(U) * I:
-  outer_product <- k_dot(k_reshape(user_embedding, shape = c(K, 1)), item_embedding) 
+  #outer_product <- k_dot(k_reshape(user_embedding, shape = c(K, 1)), item_embedding) 
+  outer_product <- k_batch_dot(k_permute_dimensions(user_embedding, c(1, 3, 2)), item_embedding, axes=c(3,2)) 
+  #TODO: test to see if I'm getting correct outerproduct. Dimensions are correct: (None, K, K)
+  # This blog post was helpful: https://master--bloodbaby.netlify.app/docs/keras_tips_1/
+  k_get_value(outer_product)
+  #k_batch_get_value(outer_product)
+  
   
   #outer_product <- layer_dot(
   #  inputs = list(user_embedding_transpose, item_embedding),
