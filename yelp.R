@@ -1,10 +1,10 @@
+# This script builds a ConvNCF model for yelp reviews.
 
 # Load libraries ----------------------------------------------------------
 
 library(tidyverse)
 library(magrittr)
 library(pins)
-
 
 # Read data ---------------------------------------------------------------
 
@@ -59,13 +59,10 @@ train <- anti_join(train_rating, validation) %>%
   mutate(label = as.integer(str_detect(label,"pos")))
 
 
-
 # Build model -------------------------------------------------------------
-
 
 model <- build_convNCF()
 summary(model)
-
 
 # Train model -------------------------------------------------------------
 
@@ -93,7 +90,6 @@ history <-
 
 # Load best model:
 model <- load_model_hdf5("my_model.h5")
-
 
 # Evaluate results --------------------------------------------------------
 
