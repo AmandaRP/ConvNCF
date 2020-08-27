@@ -65,9 +65,8 @@ train <- anti_join(train_rating, validation) %>%
 
 library(keras)
 
-K <- 64
-
-convNCF <- function(K){
+build_convNCF <- function(K=64, lambda_1 = 10^-6, lambda_2 = 10^-6, lambda_3 = 10^-1, lambda_4 = 10^-1){
+  
   user_input <- layer_input(shape=1, name = "user_input") 
   item_input <- layer_input(shape=1, name = "item_input")
   
@@ -75,8 +74,7 @@ convNCF <- function(K){
     layer_embedding(input_dim = num_users, # "dictionary" size
                     output_dim = K,
                     #embeddings_initializer = initializer_random_normal(0, sigma), # Use N(0,sigma) initialization  
-                    # Paper did not mention regularization, but it is included in authors' code. Note sure what value they used, but their default is 0.
-                    #embeddings_regularizer = regularizer_l2(lambda), 
+                    embeddings_regularizer = regularizer_l2(lambda_1), 
                     input_length = 1,  # the length of the sequence that is being fed in (one integer)
                     name = "user_embedding") 
   
@@ -84,56 +82,39 @@ convNCF <- function(K){
     layer_embedding(input_dim = num_items, # "dictionary" size
                     output_dim = K,
                     #embeddings_initializer = initializer_random_normal(0, sigma), # Use N(0,sigma) initialization  
-                    # Paper did not mention regularization, but it is included in authors' code. Note sure what value they used, but their default is 0.
-                    #embeddings_regularizer = regularizer_l2(lambda), 
+                    embeddings_regularizer = regularizer_l2(lambda_2), 
                     input_length = 1,  # the length of the sequence that is being fed in (one integer)
                     name = "item_embedding") 
   
-  #Compute outer product transpose(U) * I:
-  #outer_product <- k_dot(k_reshape(user_embedding, shape = c(K, 1)), item_embedding) 
-  outer_product <- k_batch_dot(k_permute_dimensions(user_embedding, c(1, 3, 2)), item_embedding, axes=c(3,2)) 
-  #TODO: test to see if I'm getting correct outerproduct. Dimensions are correct: (None, K, K)
-  # This blog post was helpful: https://master--bloodbaby.netlify.app/docs/keras_tips_1/
-  k_get_value(outer_product)
-  #k_batch_get_value(outer_product)
+  outer_product <- layer_dot(list(k_permute_dimensions(user_embedding, c(1, 3, 2)), 
+                                  item_embedding), 
+                             axes=c(2,1)) %>%    #TODO: Why is axes not c(3,2 here)? Not 1-based???
+    layer_reshape(c(64,64,1))
+    
   
+  output <-  
+    outer_product %>% 
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>%
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>%
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>%
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>%
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>%
+    layer_conv_2d(filters = 32, kernel_size = c(2,2), strides = 2, activation = "relu", kernel_regularizer = regularizer_l2(lambda_3)) %>% #TODO: All layers have a regularizer? What type of regularizer? kernel, bias, or activity?
+    layer_dense(units = 1, activation = "linear", kernel_regularizer = regularizer_l2(lambda_4), use_bias = FALSE, name = "output")
   
-  #outer_product <- layer_dot(
-  #  inputs = list(user_embedding_transpose, item_embedding),
-  #  name = "outer_product")
+  model <- keras_model(list(user_input, item_input), output)
+
+  # Compile model 
   
-  outer_product %>% 
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu", input_shape = c(K,K,1)) %>%
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu") %>%
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu") %>%
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu") %>%
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu") %>%
-    layer_conv_2d(filters = 32, kernel_size = c(2,2), activation = "relu") %>%
-    layer_flatten() %>%
-    layer_dense(units = 1, activation = "softmax")
+  model %>% compile(
+    optimizer = "adagrad",
+    loss = "binary_crossentropy", 
+    metrics = c("accuracy")
+  )
+  
+  summary(model)
   
 }
 
 
 
-#outer_product <- function(L){
-#  #L: A list of two matrices? tensors?
-#  X <- L[[1]]
-#  Y <- L[[2]]
-#  
-#}
-
-# layer_lambda(
-#   list(user_embedding, item_embedding),
-#   f = outer_product,
-#   output_shape = NULL,
-#   mask = NULL,
-#   arguments = NULL,
-#   input_shape = NULL,
-#   batch_input_shape = NULL,
-#   batch_size = NULL,
-#   dtype = NULL,
-#   name = NULL,
-#   trainable = NULL,
-#   weights = NULL
-# )
