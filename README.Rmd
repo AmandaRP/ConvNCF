@@ -20,7 +20,7 @@ The model implementation is in `ConvNCF.R`. This implementation currently assume
 
 The bulk of the code in this repo has been completed, however, before it is used for a recommender system application the following items need to be completed:
 
-* Perform grid search to select regularization hyperparameters: `lambda_1`, `lambda_2`, `lambda_3`, and `lambda_4` 
+* Perform grid search to select regularization hyperparameters: `lambda_1`, `lambda_2`, `lambda_3`, and `lambda_4`. See section 6.1 of the referenced paper for grid values. 
 * Pretrain the weights of the model using traditional (non deep learning) recsys methods (see section 5.4 of the paper and authors' [python code](https://github.com/duxy-me/ConvNCF/blob/master/MF_BPR.py)).
 * Use BPR objective function (starter code in `bpr_loss.R`).
 * Select negative examples on the fly for each epoch. See example R code [here](https://github.com/nanxstats/deep-learning-recipes/blob/a0aa18c23d0bb458d8bae084a46db47279e610f9/triplet-loss-keras/triplet-loss-bpr-keras.R#L118).

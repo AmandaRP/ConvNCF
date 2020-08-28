@@ -26,7 +26,8 @@ is used for a recommender system application the following items need to
 be completed:
 
   - Perform grid search to select regularization hyperparameters:
-    `lambda_1`, `lambda_2`, `lambda_3`, and `lambda_4`
+    `lambda_1`, `lambda_2`, `lambda_3`, and `lambda_4`. See section 6.1
+    of the referenced paper for grid values.
   - Pretrain the weights of the model using traditional (non deep
     learning) recsys methods (see section 5.4 of the paper and authors’
     [python
