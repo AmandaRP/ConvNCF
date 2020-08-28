@@ -45,7 +45,7 @@ build_convNCF <- function(K=64, lambda_1 = 10^-6, lambda_2 = 10^-6, lambda_3 = 1
   
   model %>% compile(
     optimizer = "adagrad",
-    loss = "binary_crossentropy", 
+    loss = "binary_crossentropy", #TODO: Replace with BPR loss
     metrics = c("accuracy")
   )
   
