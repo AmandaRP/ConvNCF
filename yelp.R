@@ -17,7 +17,7 @@ train_rating <- read_tsv(gzfile(pins::pin(str_c(base_name, "train.rating.gz"))),
 
 num_users <- max(train_rating$user) + 1
 num_items <- max(train_rating$item) + 1
-neg_pos_ratio_train <- 4 # Ratio of negative training samples to positive to select for training. NCF authors used 4.
+neg_pos_ratio_train <- 1 # Ratio of negative training samples to positive to select for training. 
 
 # Wrangle data ------------------------------------------------------------
 

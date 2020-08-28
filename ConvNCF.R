@@ -10,7 +10,6 @@ build_convNCF <- function(K=64, lambda_1 = 10^-6, lambda_2 = 10^-6, lambda_3 = 1
   user_embedding <- user_input %>%  
     layer_embedding(input_dim = num_users, # "dictionary" size
                     output_dim = K,
-                    #embeddings_initializer = initializer_random_normal(0, sigma), # Use N(0,sigma) initialization  
                     embeddings_regularizer = regularizer_l2(lambda_1), 
                     input_length = 1,  # the length of the sequence that is being fed in (one integer)
                     name = "user_embedding") 
@@ -18,9 +17,8 @@ build_convNCF <- function(K=64, lambda_1 = 10^-6, lambda_2 = 10^-6, lambda_3 = 1
   item_embedding <- item_input %>%  
     layer_embedding(input_dim = num_items, # "dictionary" size
                     output_dim = K,
-                    #embeddings_initializer = initializer_random_normal(0, sigma), # Use N(0,sigma) initialization  
                     embeddings_regularizer = regularizer_l2(lambda_2), 
-                    input_length = 1,  # the length of the sequence that is being fed in (one integer)
+                    input_length = 1,  
                     name = "item_embedding") 
   
   outer_product <- layer_dot(list(k_permute_dimensions(user_embedding, c(1, 3, 2)), 
@@ -42,7 +40,6 @@ build_convNCF <- function(K=64, lambda_1 = 10^-6, lambda_2 = 10^-6, lambda_3 = 1
   model <- keras_model(list(user_input, item_input), output)
 
   # Compile model 
-  
   model %>% compile(
     optimizer = "adagrad",
     loss = "binary_crossentropy", #TODO: Replace with BPR loss

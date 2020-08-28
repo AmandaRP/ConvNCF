@@ -1,6 +1,17 @@
 # This script contains starter code to define a BPR loss. 
 # It is not finished and has not been tested.
 
+my_bpr <- function(x){
+  pos_preds <- x[[1]] 
+  neg_preds <- x[[2]]
+  distance <- pos_preds - neg_preds
+  loss <- k_sum(k_log(k_sigmoid(distance)))
+}
+
+bpr_loss <- list(pos_preds, neg_preds) %>% layer_lambda(my_bpr, output_shape = c(1))
+
+# ---
+
 # BPR triplet loss is the output (from https://github.com/nanxstats/deep-learning-recipes)
 #loss <- list(embed_user, embed_item_positive, embed_item_negative) %>%
 #  layer_lambda(loss_bpr_triplet, output_shape = c(1))
@@ -24,7 +35,7 @@
 
 # ---
 
-#python pytorch version for convncf:
+#python pytorch version for convncf from https://github.com/gitgiter/ConvNCF-pytorch/blob/master/ConvNCF.py:
 #class BPRLoss(nn.Module):
 
 #  def __init__(self):
@@ -36,14 +47,4 @@
 #  loss = torch.sum(torch.log((1 + torch.exp(-distance))))
 
 #  return loss
-
-# ---
-
-my_bpr <- function(x){
-  pos_preds <- x[[1]] 
-  neg_preds <- x[[2]]
-  distance <- pos_preds - neg_preds
-  loss <- 1 - k_sigmoid(k_sum(distance))
-}
-bpr_loss <- list(pos_preds, neg_preds) %>% layer_lambda(my_bpr, output_shape = c(1))
 
