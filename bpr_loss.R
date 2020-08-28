@@ -1,11 +1,13 @@
 # This script contains starter code to define a BPR loss. 
 # It is not finished and has not been tested.
 
+# See equation 8 in paper: https://arxiv.org/pdf/1906.11171.pdf
+
 my_bpr <- function(x){
   pos_preds <- x[[1]] 
   neg_preds <- x[[2]]
   distance <- pos_preds - neg_preds
-  loss <- k_sum(k_log(k_sigmoid(distance)))
+  loss <- -k_sum(k_log(k_sigmoid(distance)))
 }
 
 bpr_loss <- list(pos_preds, neg_preds) %>% layer_lambda(my_bpr, output_shape = c(1))
